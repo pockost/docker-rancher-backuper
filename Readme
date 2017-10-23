@@ -1,0 +1,83 @@
+Rancher backuper
+================
+
+This container contain some tools to make a lot of backup task. This project work, but not only, with Rancher.
+
+To add more backup task you have to customize you crontab rules with the /etc/crontabs/root
+
+Usage
+=====
+
+
+Backup mysql and send to FTP
+============================
+
+Mount a tmp folder (for tmp archive storage).
+
+WARNING
+WARNING
+WARNING
+Note : All the content of this folder will be delete
+WARNING
+WARNING
+WARNING
+
+Add a crontab rules like
+
+```
+0			2			*		*			*				ash /usr/local/bin/backup_mysql.sh
+0			4			*		*			*				ash /usr/local/bin/backup_to_ftp.sh /data ftp.example.com ftp_username ftp_password ftp/destination/path
+```
+
+And run the container
+
+```
+docker run -v path/to/crontab_file:/etc/crontabs/root -v /var/run/docker.sock:/var/run/docker.sock -v /data/backup:/tmp/backup pockost/rancher-backuper
+```
+
+At 2 o'clock, this will launch mysqldump task on all container named with "mysql", "mariadb" or "db" in the name and if the mysqldump command exist in.
+All backup will be stored in /data/backup/mysql on the host (/tmp/backup/mysql into container) and be compress with gzip.
+At 4 o'clock a full copy will be send to FTP server using duplicity tools.
+
+
+Note: The /var/run/docker.sock is needed since this one is used to detect and connect to mysql containers.
+
+
+Backup a directory to FTP
+=========================
+
+Mount folder to backup into container. For the instance
+
+```docker run -v /path/to/backup:/data -v /data/backup:/tmp/backup pockost/rancher-backuper```
+
+Add a contab line like this one
+
+```
+0			4			*		*			*				ash /usr/local/bin/backup_to_ftp.sh /data ftp.example.com ftp_username ftp_password ftp/destination/path
+```
+
+Note: The ftp destination path should exist on FTP server.
+
+
+Temp dir organization
+=====================
+
+```
+/tmp/backup
+           /mysql  => Mysql Backup
+           /tmp    => Duplicity tmp folder
+```
+
+Note
+====
+
+If you have to following error :
+
+```
+Giving up after 5 attempts. BackendException: Error running 'lftp -c "source /tmp/backup/tmp/duplicity-3_oi4L-tempdir/mkstemp-IZQQw6-1; ( cd mysql/ && ls ) || ( mkdir -p mysql/ && cd mysql/ && ls )"': returned 1, with output:
+
+cd: Login failed: 530 Bad credentials
+mkdir: Login failed: 530 Bad credentials
+```
+
+You have to create destination folder on FTP. For the instance here the mysql folder

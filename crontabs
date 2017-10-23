@@ -1,0 +1,4 @@
+# do daily/weekly/monthly maintenance
+# min	hour	day	month	weekday	command
+0			2			*		*			*				ash /usr/local/bin/backup_mysql.sh
+#0			4			*		*			*				ash /usr/local/bin/backup_to_ftp.sh /tmp/backup/mysql ftp.example.com ftp_username ftp_password mysql
