@@ -26,7 +26,7 @@ Add a crontab rules like
 
 ```
 0			2			*		*			*				ash /usr/local/bin/backup_mysql.sh
-0			4			*		*			*				ash /usr/local/bin/backup_to_ftp.sh /data ftp.example.com ftp_username ftp_password ftp/destination/path
+0			4			*		*			*				ash /usr/local/bin/backup_to_ftp.sh /tmp/backup/mysql ftp.example.com ftp_username ftp_password ftp/destination/path
 ```
 
 And run the container
